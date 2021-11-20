@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test.py
+# binary_img.py
 # Author: FineBit
 import cv2
 

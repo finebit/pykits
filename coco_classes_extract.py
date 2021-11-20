@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test.py
+# coco_classes_extract.py
 # Author: FineBit
 import argparse
 import os
@@ -8,35 +8,31 @@ import shutil
 
 
 # 给定文件夹，返回存在指定类别的文件名
-def get_class_exist_path(l_path, c: list):
-    result = []
-    for root, dirs, files in os.walk(l_path):
+def copy_txt_files(src_path, dst_path, c: list):
+    for root, dirs, files in os.walk(src_path):
         total = len(files)
+        print("Copy {} txt files in total.".format(total))
+        copy_num = 0
         for i, file in enumerate(files):
-            f_path = os.path.join(root, file)
-            with open(f_path) as f:
+            classes_exist = False
+            src_f_path = os.path.join(root, file)
+            dst_f_path = os.path.join(dst_path, file)
+            with open(src_f_path) as f:
                 for line in f.readlines():
                     items = re.split(r"[ ]+", line)
                     if items[0] in c:
-                        result.append(file)
+                        copy_num += 1
+                        classes_exist = True
                         break
-            print("check class: %d/%d" % (i + 1, total))
-        return result
-
-
-def copy_txt_files(l_path, e_fs, dst_d_path):
-    total = len(e_fs)
-    for i, e_f in enumerate(e_fs):
-        src = os.path.join(l_path, e_f)
-        dst = os.path.join(dst_d_path, e_f)
-        shutil.copy(src, dst)
-        print("copy txt: %d/%d" % (i+1, total))
+            if classes_exist:
+                shutil.copy(src_f_path, dst_f_path)
+            print("Check files: {}/{},  Copy txt files: {}".format(i + 1, total, copy_num), end='\r')
 
 
 def delete_other_class(dst_l_path, c: list, renumber: bool):
-    cls_num = []
     for root, dirs, files in os.walk(dst_l_path):
         total = len(files)
+        print("\nDelete {} txt files in total.".format(total))
         for i, file in enumerate(files):
             f_path = os.path.join(dst_l_path, file)
             with open(f_path, 'r') as f:
@@ -45,24 +41,23 @@ def delete_other_class(dst_l_path, c: list, renumber: bool):
                 for line in lines:
                     items = re.split(r"[ ]+", line)
                     if items[0] in c:
-                        if not (items[0] in cls_num):
-                            cls_num.append(items[0])
                         if renumber:
-                            items[0] = str(cls_num.index(items[0]))
+                            items[0] = str(c.index(items[0]))
                             line = " ".join(items)
                         f_w.write(line)
-            print("delete other class: %d/%d" % (i + 1, total))
+            print("delete other class: {}/{}".format(i + 1, total), end='\r')
 
 
 def copy_images(img_dir, dst_img_dir, dst_l_path):
     for root, dirs, files in os.walk(dst_l_path):
         total = len(files)
+        print("\nCopy {} images in total.".format(total))
         for i, file in enumerate(files):
             image_file = os.path.splitext(file)[0] + ".jpg"  # txt后缀替换为jpg
             src = os.path.join(img_dir, image_file)
             dst = os.path.join(dst_img_dir, image_file)
             shutil.copy(src, dst)
-            print("copy images: %d/%d" % (i+1, total))
+            print("copy images: {}/{}".format(i+1, total), end='\r')
 
 
 if __name__ == "__main__":
@@ -90,8 +85,7 @@ if __name__ == "__main__":
         print(dest_classes)
 
         # 第一步：将含有指定class的txt文件复制到指定目录
-        e_files = get_class_exist_path(labels_path, dest_classes)  # 返回txt文件列表
-        copy_txt_files(labels_path, e_files, dest_labels_path)
+        copy_txt_files(labels_path, dest_labels_path, dest_classes)
 
         # 第二步：删除移动后的txt中，不需要的class
         delete_other_class(dest_labels_path, dest_classes, arg.renumber)
