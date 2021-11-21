@@ -7,11 +7,10 @@ import re
 import shutil
 
 
-# 给定文件夹，返回存在指定类别的文件名
 def copy_txt_files(src_path, dst_path, c: list):
     for root, dirs, files in os.walk(src_path):
         total = len(files)
-        print("Copy {} txt files in total.".format(total))
+        print("Find {} txt files in {}".format(total, src_path))
         copy_num = 0
         for i, file in enumerate(files):
             classes_exist = False
@@ -32,7 +31,7 @@ def copy_txt_files(src_path, dst_path, c: list):
 def delete_other_class(dst_l_path, c: list, renumber: bool):
     for root, dirs, files in os.walk(dst_l_path):
         total = len(files)
-        print("\nDelete {} txt files in total.".format(total))
+        print("\nFind {} txt files in {}".format(total, dst_l_path))
         for i, file in enumerate(files):
             f_path = os.path.join(dst_l_path, file)
             with open(f_path, 'r') as f:
@@ -45,19 +44,19 @@ def delete_other_class(dst_l_path, c: list, renumber: bool):
                             items[0] = str(c.index(items[0]))
                             line = " ".join(items)
                         f_w.write(line)
-            print("delete other class: {}/{}".format(i + 1, total), end='\r')
+            print("Delete other class: {}/{}".format(i + 1, total), end='\r')
 
 
 def copy_images(img_dir, dst_img_dir, dst_l_path):
     for root, dirs, files in os.walk(dst_l_path):
         total = len(files)
-        print("\nCopy {} images in total.".format(total))
+        print("\nFind {} txt files in {}".format(total, dst_l_path))
         for i, file in enumerate(files):
             image_file = os.path.splitext(file)[0] + ".jpg"  # txt后缀替换为jpg
             src = os.path.join(img_dir, image_file)
             dst = os.path.join(dst_img_dir, image_file)
             shutil.copy(src, dst)
-            print("copy images: {}/{}".format(i+1, total), end='\r')
+            print("Copy images: {}/{}".format(i+1, total), end='\r')
 
 
 if __name__ == "__main__":
